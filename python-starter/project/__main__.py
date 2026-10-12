@@ -1,60 +1,85 @@
 from project.problem import Problem
-import argparse
-import importlib
-import pkgutil
 
-class Main(object):
-
+class DFA:
+    """A determinisztikus véges automata logikája"""
     def __init__(self):
-        self.problems = []
+        self.states = set()
+        self.alphabet = set()
+        self.start_state = None
+        self.accept_states = set()
+        self.transitions = {}
 
-    def load_problems(self):
-        """
-        Load all the problems from the problems package
-        """
-        package = 'project.problems'
+    def load_from_file(self, filename):
+        with open(filename, 'r', encoding='utf-8') as f:
+            lines = [line.strip() for line in f if line.strip()]
 
-        for _, module_name, _ in pkgutil.iter_modules([package.replace('.', '/')]):
-            module = importlib.import_module(f"{package}.{module_name}")
+        if len(lines) < 4:
+            raise ValueError("A bemeneti fájl nem tartalmaz elég sort a DFA definiálásához.")
 
-            for attribute_name in dir(module):
-                attribute = getattr(module, attribute_name)
+        self.states = set(lines[0].split())
+        self.alphabet = set(lines[1].split())
+        self.start_state = lines[2]
+        self.accept_states = set(lines[3].split())
 
-                if isinstance(attribute, type) and issubclass(attribute, Problem) and attribute is not Problem:
-                    self.problems.append(attribute())
+        for line in lines[4:]:
+            parts = line.split()
+            if len(parts) == 3:
+                src_state, symbol, dst_state = parts
+                self.transitions[(src_state, symbol)] = dst_state
+
+    def accepts(self, word):
+        current_state = self.start_state
+        for symbol in word:
+            if (current_state, symbol) in self.transitions:
+                current_state = self.transitions[(current_state, symbol)]
+            else:
+                return False
+        return current_state in self.accept_states
+
+
+class Hazi1Problem(Problem):
+    """A feladatot a keretrendszerhez illesztő osztály"""
     
-    def initialize_parser(self):
-        """
-        Initialize the parser by adding the necessary arguments
-        of all the problems
-        """
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--input', help='input file')
-        parser.add_argument('--output', help='output file')
+    def initialize_parser(self, parser):
+        # A --input és --output argumentumokat a main.py már inicializálja,
+        # így ide csak a mi egyedi --check argumentumunk kell.
+        parser.add_argument('--check', help='Vesszővel elválasztott szavak listája (pl. a,ab,abc).')
 
-        for problem in self.problems:
-            problem.initialize_parser(parser)
+    def is_chosen_problem(self, args):
+        # Ez a probléma akkor aktív, ha a felhasználó megadta a --check argumentumot.
+        return args.check is not None
 
-        return parser
+    def run(self, args):
+        # Ellenőrizzük, hogy a fő argumentumok (input, output) meg lettek-e adva
+        if not args.input or not args.output:
+            print("Hiba: Az --input és --output megadása kötelező a feladat futtatásához!")
+            return
 
-    def run(self):
-        # First, load the problems
-        self.load_problems()
+        dfa = DFA()
+        
+        # 1. Automata betöltése
+        try:
+            dfa.load_from_file(args.input)
+        except FileNotFoundError:
+            print(f"Hiba: A '{args.input}' fájl nem található.")
+            return
+        except Exception as e:
+            print(f"Hiba az automata betöltésekor: {e}")
+            return
 
-        # Then, initialize the parser
-        parser = self.initialize_parser()
-        args = parser.parse_args()
+        # 2. Szavak feldolgozása
+        words_to_check = args.check.split(',')
+        results = []
 
-        # Find the problem that is chosen
-        for problem in self.problems:
-            if problem.is_chosen_problem(args):
-                # Run the chosen problem
-                problem.run(args)
-                return
-    
-        # No problem was chosen
-        parser.print_help()
+        for word in words_to_check:
+            if dfa.accepts(word):
+                results.append("IGEN")
+            else:
+                results.append("NEM")
 
-if __name__ == '__main__':
-    main = Main()
-    main.run()
+        # 3. Eredmények kiírása
+        try:
+            with open(args.output, 'w', encoding='utf-8') as out_file:
+                out_file.write('\n'.join(results) + '\n')
+        except Exception as e:
+            print(f"Hiba a kimeneti fájl írásakor: {e}")
