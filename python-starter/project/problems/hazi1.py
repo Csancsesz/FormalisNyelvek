@@ -1,6 +1,10 @@
 import os
 from project.problem import Problem
+import sys
 
+def is_chosen_problem(self, args):
+    # Csak és kizárólag akkor fut le, ha a --check ott van a kiadott parancsban
+    return '--check' in sys.argv
 class Hazi1Problem(Problem):
     def initialize_parser(self, parser):
         # Hozzáadjuk a mi specifikus paraméterünket
