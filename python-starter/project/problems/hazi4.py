@@ -105,5 +105,5 @@ class Hazi4Problem(Problem):
                     if results:
                         out_file.write('\n'.join(results) + '\n')
 
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"HIBA TÖRTÉNT: {e}")

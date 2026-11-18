@@ -1,0 +1,10 @@
+10-15 10:18:51.254   601   601 E InputManager-JNI: at java.util.HashMap.putMapEntries(HashMap.java:500)
+10-15 10:18:51.300   221   225 I ActivityManager: Start proc 1234:com.android.settings/1000
+10-15 10:18:52.100   221   221 E lowmemorykiller: Killing 'com.example.app' (adj 900)
+10-15 10:19:51.450   601   610 W PackageManager: Unknown permission com.google.android.providers.gsf.permission.READ_GSERVICES
+10-15 11:20:10.005   888   890 D ExoPlayerImpl: Init 2.18.1
+10-15 11:20:15.120   888   892 W ExoPlayer: AudioTrackPositionTracker: Stalled at MainActivity.java:142
+10-15 12:00:00.000   999   999 I MyThreadTag: Ez a sor csak a tagben tartalmazza a szot, az uzenetben nem
+10-15 12:05:51.999   999   1002 D CustomTag: Worker Thread started successfully
+10-16 09:15:51.111   601   605 E AndroidRuntime: FATAL EXCEPTION: main at java.util.HashMap.putMapEntries(HashMap.java:500) at android.app.ActivityThread.main(ActivityThread.java:7356)
+10-16 09:16:00.500   300   300 I SystemServer: Entered the Android system server
